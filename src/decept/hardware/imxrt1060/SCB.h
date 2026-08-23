@@ -10,7 +10,7 @@
 #include <cstdint>
 #include <utility>
 
-#include "qindesign/hardware/regs/regs.h"
+#include "decept/hardware/regs/regs.h"
 
 namespace qindesign {
 namespace hardware {
@@ -133,13 +133,13 @@ static_assert(sizeof(void (*)()) == sizeof(uint32_t),
 using Vector = void (*)();
 
 // Sets an interrupt vector. VTOR must point to a vector table in writable RAM.
-static inline void setVector(const uint8_t irq, const Vector f) {
+inline void setVector(const uint8_t irq, const Vector f) {
   const auto table = reinterpret_cast<uint32_t*>(group->VTOR);
   table[irq + 16] = reinterpret_cast<uint32_t>(f);
   asm volatile ("dsb sy" ::: "memory");
 }
 
-static inline Vector getVector(const uint8_t irq) {
+inline Vector getVector(const uint8_t irq) {
   const auto table = reinterpret_cast<uint32_t*>(group->VTOR);
   return reinterpret_cast<Vector>(table[irq + 16]);
 }
@@ -176,7 +176,7 @@ constexpr SCB_Reg<&SCB_Layout::AIRCR, 1, 0, kWO, kVECTKEY, true> VECTRESET;
 }  // namespace keyed
 
 [[noreturn]]
-static inline void systemReset() {
+inline void systemReset() {
   // Ensure all outstanding memory accesses including buffered writes are
   // completed before reset
   asm volatile("dsb sy" ::: "memory");

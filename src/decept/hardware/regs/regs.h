@@ -33,13 +33,17 @@ class RegGroup {
   static_assert((BaseAddr % alignof(Layout)) == 0, "Bad alignment");
 
  public:
+  [[gnu::always_inline]]
   Layout* operator&() const { return reinterpret_cast<Layout*>(BaseAddr); }
+  [[gnu::always_inline]]
   Layout* operator->() const { return operator&(); }
+  [[gnu::always_inline]]
   Layout& operator*() const { return *operator&(); }
 };
 
 // Gets the basic shifted mask for the given parameters.
 template <typename R, size_t Bits, unsigned int Shift>
+[[gnu::always_inline]]
 constexpr R shiftedMask() {
   // Number of bits in whole register.
   constexpr size_t kWholeRegBits = std::numeric_limits<R>::digits;
@@ -63,18 +67,21 @@ constexpr R shiftedMask() {
 
 // Gets the basic shifted 32-bit mask for the given parameters.
 template <size_t Bits, unsigned int Shift>
+[[gnu::always_inline]]
 constexpr uint32_t shiftedMask32() {
   return shiftedMask<uint32_t, Bits, Shift>();
 }
 
 // Gets the basic shifted 16-bit mask for the given parameters.
 template <size_t Bits, unsigned int Shift>
+[[gnu::always_inline]]
 constexpr uint16_t shiftedMask16() {
   return shiftedMask<uint16_t, Bits, Shift>();
 }
 
 // Gets the basic shifted 8-bit mask for the given parameters.
 template <size_t Bits, unsigned int Shift>
+[[gnu::always_inline]]
 constexpr uint8_t shiftedMask8() {
   return shiftedMask<uint8_t, Bits, Shift>();
 }
@@ -171,10 +178,18 @@ class Reg {
   }
 
   // Given a whole register value, returns the extracted field. This is similar
-  // to 'operator R()'.
+  // to 'operator R()' and the opposite of assign().
   [[gnu::always_inline]]
-  constexpr R extract(const R val) const {
+  static constexpr R extract(const R val) {
     return (val & kMask) >> Shift;
+  }
+
+  // Given a whole register value, returns the new value with the field set to
+  // the given field value. This is similar to assignment and the opposite
+  // of extract().
+  [[gnu::always_inline]]
+  static constexpr R assign(const R r, const R field) {
+    return (r & ~kMask) | ((field << Shift) & kMask);
   }
 
  private:
@@ -368,10 +383,18 @@ class RegValue {
   }
 
   // Given a whole register value, returns the extracted field. This is similar
-  // to 'operator R()'.
+  // to 'operator R()' and the opposite of assign().
   [[gnu::always_inline]]
-  constexpr R extract(const R val) const {
+  static constexpr R extract(const R val) {
     return (val & kMask) >> Shift;
+  }
+
+  // Given a whole register value, returns the new value with the field set to
+  // the given field value. This is similar to assignment and the opposite
+  // of extract().
+  [[gnu::always_inline]]
+  static constexpr R assign(const R r, const R field) {
+    return (r & ~kMask) | ((field << Shift) & kMask);
   }
 };
 
