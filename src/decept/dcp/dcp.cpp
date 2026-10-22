@@ -54,7 +54,7 @@ alignas(32) static uint32_t s_contextSwitchingBuf[208 / sizeof(uint32_t)];
 
 FLASHMEM void init() {
   // Enable the clock
-  CCM::CCGR0::DCP = CCM::CCGR::kON;
+  CCM::CCGR0::DCP = CCM::CCGR::kOn;
 
   // CTRL:
   // Reset value:   0xF0800000
@@ -112,12 +112,12 @@ FLASHMEM void deinit() {
                      DCP::CTRL::GATHER_RESIDUAL_WRITES(1);
 
   // Turn off the clock
-  CCM::CCGR0::DCP = CCM::CCGR::kOFF;
+  CCM::CCGR0::DCP = CCM::CCGR::kOff;
 }
 
 bool isStarted() {
   // Check only the run-only bit because that's always set when running
-  return (CCM::CCGR0::DCP & CCM::CCGR::kRUN_ONLY) == CCM::CCGR::kRUN_ONLY;
+  return (CCM::CCGR0::DCP & CCM::CCGR::kRunOnly) == CCM::CCGR::kRunOnly;
 }
 
 // Disable optimizations for GCC to prevent instruction reordering
